@@ -6,25 +6,27 @@ void print_arp_cache_table_list(uint32_t *lan_node, int size) {
     int i;
     char res_mac_addr[ETH_ALEN];
     memset(res_mac_addr, 0, ETH_ALEN);
-    printf("Arp Table");
-    printf("\n++++++++++++++++++++++++++++++++");
+    printf(KBLU "Arp Table");
+    printf("\n++++++++++++++++++++++++++++++++\n");
 
     for (i = 0; i < size; i++) {
         get_mac_from_arp_cache(lan_node[i], res_mac_addr);
         print_ip(lan_node[i]);
         printf(" | ");
         print_mac(res_mac_addr);
-        printf("\n++++++++++++++++++++++++++++++++");
+        printf("\n++++++++++++++++++++++++++++++++\n");
 
     }
-    printf("\n");
+    printf("\n" RESET);
 }
 
 void create_n_add_entry(unsigned char *ip, char *mac_addr) {
 
+    /*
     printf("Adding %s ---> ", ip);
     print_mac(mac_addr);
     printf("\n");
+    */
 
     struct in_addr *sock_ip = malloc(sizeof(struct in_addr));
     inet_aton(ip, sock_ip);

@@ -82,7 +82,7 @@ bool get_route_entry(uint32_t network, uint32_t dest_ip,
  * ++++++++++++++++++++++++++++++++++++++++++++++
  */
 void print_route_table() {
-    printf("Route table");
+    printf(KGRN "Route table");
     printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
     char res_interface[100];
     uint32_t res_mask, metric;
@@ -101,9 +101,10 @@ void print_route_table() {
         print_ip(res_mask);
         printf(" | ");
         printf( " %d ", metric);
-        printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
+        printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" );
 
     }
+    printf(RESET);
 }
 
 void add_entry_char(char *network, char *next_hop,

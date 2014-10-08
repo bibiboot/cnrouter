@@ -11,6 +11,8 @@
 
 #include "uthash.h"
 #include "config.h"
+#include "color.h"
+#include "cprotocol.h"
 
 #define DEBUG 0
 

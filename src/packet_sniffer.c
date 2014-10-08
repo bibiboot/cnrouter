@@ -1,8 +1,66 @@
 #include "packet_sniffer.h"
 
+#include <net/if.h>
+
 #define PACKET_LEN 65536
 
-int tcp=0,udp=0,icmp=0,others=0,total=0,i,j;
+void print_header(unsigned char *packet, int size)
+{
+    printf(KCYN "SNIFF: " RESET);
+    struct data *dhead = (struct data*) packet;
+    printf("Dest Mac : %d, Src Mac : %d\n",
+            ntohs(dhead->dest_mac),
+            ntohs(dhead->src_mac));
+
+}
+
+void print_human_read_payload(unsigned char *packet, int size)
+{
+    printf(KCYN "SNIFF: " RESET);
+    int header_size = sizeof(struct data);
+    unsigned char *payload = packet + header_size;
+
+    printf("Total [%d]: Header size [%d]: Payload [%d]: %s\n",
+            size, header_size,size - header_size, payload);
+}
+
+int process_custom_packet(unsigned char* buffer, int size)
+{
+    struct data *dhead = (struct data*) buffer;
+
+    if (ntohs(dhead->dest_mac) == 1) {
+        print_data_detail(buffer, size);
+        print_header(buffer, size);
+        print_human_read_payload(buffer, size);
+    }
+    fflush(LOGFILE);
+    fflush(stdout);
+}
+
+int set_promisc(char *interface, int sock ) {
+    struct ifreq ifr;
+    strncpy(ifr.ifr_name, interface,strlen(interface)+1);
+    if((ioctl(sock, SIOCGIFFLAGS, &ifr) == -1)) {
+        /*Could not retrieve flags for the
+        * interface*/
+        perror("Could not retrive flags for the interface");
+        exit(0);
+    }
+    printf("DEBUG: The interface is ::: %s\n", interface);
+    perror("DEBUG: Retrieved flags from interface successfully");
+
+    /*now that the flags have been
+    * retrieved*/
+    /* set the flags to PROMISC */
+    ifr.ifr_flags |= IFF_PROMISC;
+    if (ioctl (sock, SIOCSIFFLAGS, &ifr) == -1 ) {
+        perror("Could not set the PROMISC flag:");
+        exit(0);
+    }
+    printf("DEBUG: Setting interface ::: %s ::: to promisc\n", interface);
+    return(0);
+}
+
 
 void* sniff(void *val)
 {
@@ -20,6 +78,15 @@ void* sniff(void *val)
         return;
     }
 
+    /**
+     * Set it on promiscous mode,
+     * Otherwise it won't sniff packet
+     * Which do not belong to him
+     */
+    set_promisc(INF0, sock_raw);
+    set_promisc(INF1, sock_raw);
+    set_promisc(INF2, sock_raw);
+
     while(1) {
         saddr_size = sizeof saddr;
         // Receive a packet
@@ -29,6 +96,9 @@ void* sniff(void *val)
             printf("Error: Recvfrom error , failed to get packets\n");
             return ;
         }
+
+        /* Track count of the packet type */
+        int status = process_custom_packet(buffer , data_size);
 
         // Filter. Currently allowing all.
         if (!is_allowed(buffer, data_size)) {
@@ -48,41 +118,10 @@ void* sniff(void *val)
             incoming_packet_handler(buffer, data_size);
         }
 
-        /* Track count of the packet type */
-        int status = process_packet(buffer , data_size);
-
         memset(buffer, '\0', PACKET_LEN);
-        //fflush(LOGFILE);
+        fflush(LOGFILE);
         fflush(stdout);
     }
 
     close(sock_raw);
-}
-
-int process_packet(unsigned char* buffer, int size)
-{
-    struct iphdr *iph = (struct iphdr*)(buffer + sizeof(struct ethhdr));
-    ++total;
-    switch (iph->protocol)
-    {
-        case 1:  //ICMP Protocol
-            ++icmp;
-            break;
-        case 6:  //TCP Protocol
-            ++tcp;
-            break;
-
-        case 17: //UDP Protocol
-            ++udp;
-            break;
-
-        default: //Some Other Protocol like ARP etc.
-            ++others;
-            break;
-    }
-    //printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\r",
-    printf("TCP : %d   UDP : %d   ICMP : %d   Others : %d   Total : %d\n",
-            tcp , udp , icmp , others , total);
-
-    return 1;
 }
