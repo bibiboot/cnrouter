@@ -12,16 +12,9 @@
 #include "uthash.h"
 #include "config.h"
 
-
-/* Three different topology */
-//#define FORWARD
-#define DYNAMIC
-
 #define DEBUG 0
 
 #define PRINT_ROUTE_DEBUG 0
-
-//#define RIP
 
 #define PACKET_SIZE 65536
 #define RIP_PORT 520
@@ -30,33 +23,15 @@
                          fprintf(stderr, __VA_ARGS__);           \
                          fprintf(stderr, "\n");} while(0)
 
-/* Set up the neighboorhood nodes ip*/
-#ifdef FORWARD
-#define RTR1_IP "10.10.1.1"
-#define RTR2_IP "10.10.3.2"
-#define NODE3_IP "10.1.2.3"
-#define NODE4_IP "10.1.2.4"
-#define INF0 "inf000"
-#define INF1 "inf001"
-#define INF2 "inf002"
-#define ETH0_IP "10.1.2.1"
-#define ETH1_IP "10.10.1.2"
-#define ETH2_IP "10.10.3.1"
-#endif
-
-#ifdef DYNAMIC
-//RTR1 = Node1, RTR2 = Node2, RTR3 = Node3
-#define RTR1_IP "10.10.1.2"
-#define RTR2_IP "10.10.2.2"
+#define NODE1_IP "10.10.1.2"
+#define NODE2_IP "10.10.2.2"
 #define NODE3_IP "10.10.3.2"
-#define NODE4_IP "0.0.0.0"
 #define INF0 "eth0"
 #define INF1 "eth1"
 #define INF2 "eth2"
 #define ETH0_IP "10.10.1.1"
 #define ETH1_IP "10.10.3.1"
 #define ETH2_IP "10.10.2.1"
-#endif
 
 #define MULTICAST_IP "224.0.0.9"
 

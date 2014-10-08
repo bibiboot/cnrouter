@@ -41,37 +41,14 @@ void create_n_add_entry(unsigned char *ip, char *mac_addr) {
 
 }
 
+
 /**
  * Fill entries in the hash table.
  * Key = ip and value = structure
- * RTR1 = B, RTR2 = C, RTR = D
  */
 void init_build_arp_cache() {
-    unsigned char rtr1_ip[] = RTR1_IP;
-    unsigned char rtr2_ip[] = RTR2_IP;
-    unsigned char node3_ip[] = NODE3_IP;
-    unsigned char node4_ip[] = NODE4_IP;
-
-
-    unsigned char rtr1_mac[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x04};
-    unsigned char rtr2_mac[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x08};
-    unsigned char node3_mac[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
-    unsigned char node4_mac[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x06};
-
-    create_n_add_entry(rtr1_ip, rtr1_mac);
-    create_n_add_entry(rtr2_ip, rtr2_mac);
-    create_n_add_entry(node3_ip, node3_mac);
-    create_n_add_entry(node4_ip, node4_mac);
-}
-
-
-/**
- * Fill entries in the hash table.
- * Key = ip and value = structure
- */
-void init_build_arp_cache_dynamic() {
-    unsigned char rtr1_ip[] = RTR1_IP;
-    unsigned char rtr2_ip[] = RTR2_IP;
+    unsigned char node1_ip[] = NODE1_IP;
+    unsigned char node2_ip[] = NODE2_IP;
     unsigned char node3_ip[] = NODE3_IP;
 
     /**
@@ -81,12 +58,12 @@ void init_build_arp_cache_dynamic() {
      *
      */
 
-    unsigned char rtr1_mac[6] = {0x00, 0x04, 0x23, 0xc5, 0xde, 0x92};
-    unsigned char rtr2_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xa4, 0xb4};
+    unsigned char node1_mac[6] = {0x00, 0x04, 0x23, 0xc5, 0xde, 0x92};
+    unsigned char node2_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xa4, 0xb4};
     unsigned char node3_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xd1, 0x50};
 
-    create_n_add_entry(rtr1_ip, rtr1_mac);
-    create_n_add_entry(rtr2_ip, rtr2_mac);
+    create_n_add_entry(node1_ip, node1_mac);
+    create_n_add_entry(node2_ip, node2_mac);
     create_n_add_entry(node3_ip, node3_mac);
 }
 

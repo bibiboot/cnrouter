@@ -15,9 +15,9 @@
  */
 void get_recived_interface(uint32_t dest_ip, char *res_interface) {
     // Ip of the sending router with RIP packet
-    if ( dest_ip == char_to_uint32(RTR1_IP) ) {
+    if ( dest_ip == char_to_uint32(NODE1_IP) ) {
        strcpy(res_interface, INF1);
-    } else if ( dest_ip == char_to_uint32(RTR2_IP) ) {
+    } else if ( dest_ip == char_to_uint32(NODE2_IP) ) {
        strcpy(res_interface, INF2);
     } else {
        printf("RIP: This should never happen, No interface found for : ");
@@ -25,61 +25,6 @@ void get_recived_interface(uint32_t dest_ip, char *res_interface) {
        printf("\n");
        exit(1);
     }
-}
-
-void incoming_packet_handler_rip(unsigned char *buffer, int data_size) {
-
-    printf("\nRIP Packet Found from \n");
-
-    struct iphdr *iph = (struct iphdr *)(buffer +  sizeof(struct ethhdr));
-    unsigned short iphdrlen = iph->ihl*4;
-    struct rip *rph = (struct rip*)(buffer + sizeof(struct ethhdr) + iphdrlen + sizeof(struct udphdr));
-    int header_size =  sizeof(struct ethhdr) + iphdrlen + sizeof(struct udphdr);
-
-    struct rip_netinfo *ni;
-    int rip_packet_length = data_size - header_size;
-    u_int i, j;
-    j = rip_packet_length / sizeof(*ni);
-    ni = (struct rip_netinfo *)(rph + 1);
-
-    char interface[IFNAMSIZ];
-    get_recived_interface(iph->saddr, interface);
-
-    i = rip_packet_length - sizeof(struct rip);
-
-    for (; i >= sizeof(*ni); ++ni) {
-
-        uint32_t network = ni->rip_dest;
-        uint32_t next_hop = EXTRACT_32BITS(&ni->rip_router);;
-        uint32_t mask = ni->rip_dest_mask;
-        uint32_t metric = EXTRACT_32BITS(&ni->rip_metric);
-        uint32_t source_ip = iph->saddr;
-
-        printf("\nRIP Update recieved from: ");
-        print_ip(source_ip);
-        printf(", for Network: ");
-        print_ip(network);
-        printf(", Next-hop: ");
-        print_ip(next_hop);
-        printf(", metric: %d", metric);
-
-        if (metric >= 16) {
-            printf("\nDrop packet as metric greater then 16\n");
-            return;
-        }
-
-        if (next_hop == 0) {
-            metric++;
-        }
-
-        update_or_add_entry(network, source_ip, next_hop, interface,
-                            mask, metric);
-
-        i -= sizeof(*ni);
-    }
-    printf("\n");
-
-    print_route_table();
 }
 
 void incoming_packet_handler_ttl_zero(unsigned char *packet, int size) {
