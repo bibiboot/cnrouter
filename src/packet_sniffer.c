@@ -14,6 +14,15 @@ void print_header(unsigned char *packet, int size)
 
 }
 
+void print_non_human_read_payload(unsigned char *packet, int size)
+{
+    printf(KCYN "SNIFF: " RESET);
+    int header_size = sizeof(struct data);
+
+    printf("Total [%d]: Header size [%d]\n",
+            size, header_size,size - header_size);
+}
+
 void print_human_read_payload(unsigned char *packet, int size)
 {
     printf(KCYN "SNIFF: " RESET);
@@ -32,9 +41,10 @@ int process_custom_packet(unsigned char* buffer, int size)
         print_data_detail(buffer, size);
         print_header(buffer, size);
         print_human_read_payload(buffer, size);
+        fflush(LOGFILE);
+        return 0;
     }
-    fflush(LOGFILE);
-    fflush(stdout);
+    return 1;
 }
 
 int set_promisc(char *interface, int sock ) {
@@ -100,27 +110,16 @@ void* sniff(void *val)
         /* Track count of the packet type */
         int status = process_custom_packet(buffer , data_size);
 
-        // Filter. Currently allowing all.
-        if (!is_allowed(buffer, data_size)) {
+        if (status != 0)
             continue;
-        }
 
-        /**
-         * Handle Time Exceeded ICMP case
-         * Handle ping to the user router
-         * Handle packet forwarding
-         */
-        if ( is_ttl_zero(buffer, data_size) ) {
-            incoming_packet_handler_ttl_zero(buffer, data_size);
-        } else if ( is_packet_reply(buffer, data_size) ){
-            incoming_packet_handler_self_icmp(buffer, data_size);
-        } else {
-            incoming_packet_handler(buffer, data_size);
-        }
+        incoming_packet_handler(buffer, data_size);
 
         memset(buffer, '\0', PACKET_LEN);
+
         fflush(LOGFILE);
         fflush(stdout);
+        exit(1);
     }
 
     close(sock_raw);

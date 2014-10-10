@@ -7,5 +7,5 @@
 
 void send_ethernet_packet();
 
-void send_packet_on_line(char *if_name, unsigned char *dest_mac,
-                         void *packet, int data_size);
+void send_packet_on_line(char *if_name, void *packet,
+                         int data_size);
