@@ -20,23 +20,9 @@
 #include<sys/types.h>
 #include<unistd.h>
 
-char *ipaddr_string(u_int32_t *ip){
-  struct in_addr sock_addr;
-  memset(&sock_addr, 0, sizeof(struct in_addr));
-  sock_addr.s_addr = *ip;
-
-  return inet_ntoa(sock_addr);
-}
-
-void print_ip(uint32_t ip) {
-    struct in_addr in_ip;
-    memset(&in_ip, 0, sizeof(struct in_addr));
-    in_ip.s_addr = ip;
-    printf(" %s ", (unsigned char *)inet_ntoa(in_ip));
-}
-
 void print_routed_packet(struct sockaddr_in dest, char *result_if_name,
                          char *src_mac, char *dest_mac){
+    /*
     printf("dest ip: %s | send interface : %s | dest mac : ",
            (unsigned char *)inet_ntoa(dest.sin_addr),
            result_if_name);
@@ -44,47 +30,7 @@ void print_routed_packet(struct sockaddr_in dest, char *result_if_name,
     printf(" | src mac : ");
     print_mac(src_mac);
     printf("\n");
-}
-
-unsigned short csum(unsigned short *buf, int len)
-{
-        unsigned long sum;
-        for(sum=0; len>0; len--)
-                sum += *buf++;
-        sum = (sum >> 16) + (sum &0xffff);
-        sum += (sum >> 16);
-        return (unsigned short)(~sum);
-}
-
-void print_data (unsigned char* data , int size)
-{
-    int i;
-    for(i=0 ; i < size ; i++)
-        fprintf(LOGFILE, "%02hhx ", data[i]);
-    fprintf(LOGFILE, "\n");
-}
-
-void print_mac(const char *addr)
-{
-    int i;
-    for (i = 0; i < ETH_ALEN - 1; i++)
-        printf("%02hhx:", addr[i]);
-    printf("%02hhx", addr[ETH_ALEN - 1]);
-}
-
-void print_ethernet_header(unsigned char* buffer, int size)
-{
-    struct ethhdr *eth = (struct ethhdr *)buffer;
-
-    fprintf(LOGFILE , "\n");
-    fprintf(LOGFILE , "Ethernet Header\n");
-    fprintf(LOGFILE , "   |-Destination Address : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n",
-            eth->h_dest[0] , eth->h_dest[1] , eth->h_dest[2] , eth->h_dest[3] ,
-            eth->h_dest[4] , eth->h_dest[5] );
-    fprintf(LOGFILE , "   |-Source Address      : %.2X-%.2X-%.2X-%.2X-%.2X-%.2X \n",
-            eth->h_source[0] , eth->h_source[1] , eth->h_source[2] ,
-            eth->h_source[3] , eth->h_source[4] , eth->h_source[5] );
-    fprintf(LOGFILE , "   |-Protocol            : %u \n",(unsigned short)eth->h_proto);
+    */
 }
 
 void print_data_detail (unsigned char* data , int size)
@@ -132,4 +78,37 @@ void print_data_detail (unsigned char* data , int size)
             fprintf(LOGFILE ,  "\n" );
         }
     }
+}
+
+char* print_human_format_number(uint16_t num, char *type)
+{
+    if (strcmp(type, "UDP") == 0) {
+        switch (num) {
+            case DATA_PORT:
+                return "DATA";
+            case NACK_PORT:
+                return "NACK";
+        }
+    } else if (strcmp(type, "ETHERNET") ==0) {
+        switch (num) {
+            case ROUTER_MAC:
+                return "ROUTER_MAC";
+            case NODE1_MAC:
+                return "NODE1_MAC";
+            case NODE2_MAC:
+                return "NODE2_MAC";
+            case NODE3_MAC:
+                return "NODE3_MAC";
+        }
+    } else if (strcmp(type, "IP") ==0) {
+        switch (num) {
+            case NODE1_IP:
+                return "NODE1_IP";
+            case NODE2_IP:
+                return "NODE2_IP";
+            case NODE3_IP:
+                return "NODE3_IP";
+        }
+    }
+    return "";
 }

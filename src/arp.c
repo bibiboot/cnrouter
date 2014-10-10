@@ -11,9 +11,11 @@ void print_arp_cache_table_list(uint32_t *lan_node, int size) {
 
     for (i = 0; i < size; i++) {
         get_mac_from_arp_cache(lan_node[i], res_mac_addr);
+        /*
         print_ip(lan_node[i]);
         printf(" | ");
         print_mac(res_mac_addr);
+        */
         printf("\n++++++++++++++++++++++++++++++++\n");
 
     }
@@ -48,17 +50,12 @@ void create_n_add_entry(unsigned char *ip, char *mac_addr) {
  * Fill entries in the hash table.
  * Key = ip and value = structure
  */
+/*
 void init_build_arp_cache() {
     unsigned char node1_ip[] = NODE1_IP;
     unsigned char node2_ip[] = NODE2_IP;
     unsigned char node3_ip[] = NODE3_IP;
 
-    /**
-     * B = 00:04:23:c5:de:92
-     * C = 00:04:23:c7:a4:b4
-     * D = 00:04:23:c7:d1:50
-     *
-     */
 
     unsigned char node1_mac[6] = {0x00, 0x04, 0x23, 0xc5, 0xde, 0x92};
     unsigned char node2_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xa4, 0xb4};
@@ -68,14 +65,17 @@ void init_build_arp_cache() {
     create_n_add_entry(node2_ip, node2_mac);
     create_n_add_entry(node3_ip, node3_mac);
 }
+*/
 
 void get_mac_from_arp_cache(uint32_t ip, char *mac_addr) {
 
     arp_entry *a_node = (arp_entry*)(find_arp_entry(ip));
     if (!a_node) {
+        /*
         printf("\nARP: This should never happen. IP : ");
         print_ip(ip);
         printf(" not found in arp cache\n");
+        */
         exit(1);
     }
     memcpy(mac_addr, a_node->mac_addr, ETH_ALEN);

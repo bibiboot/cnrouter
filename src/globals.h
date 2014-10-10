@@ -24,10 +24,11 @@
 #define DBG(...) do{fprintf(stderr, "%s (%s, line %d): ", __func__, __FILE__, __LINE__); \
                          fprintf(stderr, __VA_ARGS__);           \
                          fprintf(stderr, "\n");} while(0)
-
+/*
 #define NODE1_IP "10.10.1.2"
 #define NODE2_IP "10.10.2.2"
 #define NODE3_IP "10.10.3.2"
+*/
 #define INF0 "eth0"
 #define INF1 "eth1"
 #define INF2 "eth2"

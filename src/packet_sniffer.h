@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "middleware.h"
 #include "filter.h"
+#include "print_packet.h"
 
 #include <string.h>
 #include <unistd.h>

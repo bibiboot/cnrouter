@@ -1,4 +1,5 @@
 #include "route_table.h"
+#include "cprotocol.h"
 
 #define DEF_MASK_255_255_255_0 "255.255.255.0"
 #define DEF_MASK_255_0_0_0 "255.0.0.0"
@@ -47,6 +48,7 @@ bool get_route_entry(uint32_t network, uint32_t dest_ip,
         return false;
     }
 
+    /*
     if (DEBUG) {
         uint32_t result_and = dest_ip & rentry->mask;
         printf("\n ANDED = ");
@@ -58,6 +60,7 @@ bool get_route_entry(uint32_t network, uint32_t dest_ip,
         print_ip(network);
         printf("\n");
     }
+    */
 
     *mask = rentry->mask;
     *next_hop = rentry->next_hop;
@@ -94,6 +97,7 @@ void print_route_table() {
         uint32_t next_hop = get_route_entry_print(network_ip,
                                                   res_interface, &res_mask,
                                                   &metric);
+        /*
         print_ip(network_ip);
         printf("  | %s |", res_interface);
         print_ip(next_hop);
@@ -101,6 +105,7 @@ void print_route_table() {
         print_ip(res_mask);
         printf(" | ");
         printf( " %d ", metric);
+        */
         printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" );
 
     }
@@ -139,6 +144,7 @@ void add_entry_uint(uint32_t network, char *next_hop,
 
 void add_entry_rip(uint32_t network, uint32_t next_hop,
                     char *interface, uint32_t mask, uint32_t metric) {
+    /*
     printf("Debug: Adding route: Network:  ");
     print_ip(network);
     printf("  ,Mask : ");
@@ -147,6 +153,7 @@ void add_entry_rip(uint32_t network, uint32_t next_hop,
     print_ip(next_hop);
     printf("  ,Interface : %s, Metric : %d", interface, metric);
     printf("\n");
+    */
 
     /* Create entry */
     router_entry *r_node = malloc(sizeof(router_entry));

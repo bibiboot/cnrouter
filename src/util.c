@@ -1,6 +1,19 @@
 #include "util.h"
 #include "print_packet.h"
 
+void set_pattern(unsigned char *packet, uint64_t pttn_num)
+{
+    struct pattern *pttn = (struct pattern*)packet;
+    pttn->value = htobe64(pttn_num);
+}
+
+uint64_t get_pattern(unsigned char *packet)
+{
+    struct pattern *pttn = (struct pattern*)packet;
+    printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
+    return be64toh(pttn->value);
+}
+
 uint32_t char_to_uint32(char *network) {
     struct in_addr sock_network;
     memset(&sock_network, 0, sizeof(struct in_addr));
@@ -8,20 +21,12 @@ uint32_t char_to_uint32(char *network) {
     inet_aton(network, &sock_network);
     return sock_network.s_addr;
 }
-/*
-char *ipaddr_string(u_int32_t *ip){
-  struct in_addr sock_addr;
-  memset(&sock_addr, 0, sizeof(struct in_addr));
-  sock_addr.s_addr = *ip;
-
-  return (char*)inet_ntoa(sock_addr);
-}*/
 
 void print_rtable_keys() {
     int i;
     for (i = 0; i < globals.rtable_size; i++) {
         printf("Network : ");
-        print_ip(globals.rtable_keys[i]);
+        //print_ip(globals.rtable_keys[i]);
         printf("\n");
     }
 

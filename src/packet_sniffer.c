@@ -1,49 +1,42 @@
 #include "packet_sniffer.h"
-
 #include <net/if.h>
 
 #define PACKET_LEN 65536
 
-void print_header(unsigned char *packet, int size)
+void print_human_read_payload(unsigned char *packet, int packet_size)
 {
     printf(KCYN "SNIFF: " RESET);
-    struct data *dhead = (struct data*) packet;
-    printf("Dest Mac : %d, Src Mac : %d\n",
-            ntohs(dhead->dest_mac),
-            ntohs(dhead->src_mac));
+    struct custom_ethernet *eth_header = (struct custom_ethernet*)packet;
+    struct custom_ip *ip_header = (struct custom_ip*)( packet + C_ETHLEN );
+    struct custom_udp *udp_header = (struct custom_udp*)( packet + C_ETHLEN + C_IPLEN );
+    unsigned char *payload = packet + C_HLEN;
 
-}
+    printf("Total [%d]: Header size [%lu]: Payload [%lu]: %s\n",
+            packet_size, C_HLEN,packet_size - C_HLEN, payload);
+    printf("++++++++++++++++++++++++++++++++++++++++++++\n");
+    printf("| %s ",
+            print_human_format_number(ntohs(eth_header->dest_mac), "ETHERNET"));
+    printf("| %s ",
+            print_human_format_number(ntohs(ip_header->src_ip), "IP"));
+    printf("| %s ",
+           print_human_format_number(ntohs(ip_header->dest_ip), "IP"));
+    printf("| %s |",
+            print_human_format_number(ntohs(udp_header->port), "UDP"));
+    printf("\n++++++++++++++++++++++++++++++++++++++++++++\n");
 
-void print_non_human_read_payload(unsigned char *packet, int size)
-{
-    printf(KCYN "SNIFF: " RESET);
-    int header_size = sizeof(struct data);
-
-    printf("Total [%d]: Header size [%d]\n",
-            size, header_size,size - header_size);
-}
-
-void print_human_read_payload(unsigned char *packet, int size)
-{
-    printf(KCYN "SNIFF: " RESET);
-    int header_size = sizeof(struct data);
-    unsigned char *payload = packet + header_size;
-
-    printf("Total [%d]: Header size [%d]: Payload [%d]: %s\n",
-            size, header_size,size - header_size, payload);
+    get_pattern(packet);
 }
 
 int process_custom_packet(unsigned char* buffer, int size)
 {
-    struct data *dhead = (struct data*) buffer;
+    struct custom_ethernet *eth_header = (struct custom_ethernet*)buffer;
 
-    if (ntohs(dhead->dest_mac) == 1) {
+    if (ntohs(eth_header->dest_mac) == ROUTER_MAC) {
         print_data_detail(buffer, size);
-        print_header(buffer, size);
         print_human_read_payload(buffer, size);
         fflush(LOGFILE);
-        return 0;
     }
+
     return 1;
 }
 
@@ -107,11 +100,12 @@ void* sniff(void *val)
             return ;
         }
 
-        /* Track count of the packet type */
-        int status = process_custom_packet(buffer , data_size);
-
-        if (status != 0)
+        if ( !is_allowed(buffer) ) {
             continue;
+        }
+
+        /* Track count of the packet type */
+        process_custom_packet(buffer , data_size);
 
         incoming_packet_handler(buffer, data_size);
 
@@ -119,7 +113,6 @@ void* sniff(void *val)
 
         fflush(LOGFILE);
         fflush(stdout);
-        exit(1);
     }
 
     close(sock_raw);

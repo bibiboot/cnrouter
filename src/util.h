@@ -1,9 +1,11 @@
 #include "globals.h"
 #include <linux/if_ether.h>
 
-uint32_t char_to_uint32(char *network);
+uint64_t get_pattern(unsigned char *packet);
 
-char *ipaddr_string(u_int32_t *ip);
+void set_pattern(unsigned char *packet, uint64_t pttn_num);
+
+uint32_t char_to_uint32(char *network);
 
 void print_rtable_keys();
 

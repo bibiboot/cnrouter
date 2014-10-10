@@ -56,8 +56,10 @@ void get_new_route(uint32_t dest_ip,
         }
     }
 
+    /*
     printf("No entry found : network ip:");
     print_ip(dest_ip);
     printf("\n");
+    */
     return ;
 }
