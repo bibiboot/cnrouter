@@ -4,7 +4,6 @@
 
 #include "globals.h"
 #include "print_packet.h"
-#include "route.h"
 #include "util.h"
 
 bool is_allowed(unsigned char *packet);

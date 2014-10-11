@@ -19,16 +19,10 @@
 #define PRINT_ROUTE_DEBUG 0
 
 #define PACKET_SIZE 65536
-#define RIP_PORT 520
 // Print function name, filename and line number in print
 #define DBG(...) do{fprintf(stderr, "%s (%s, line %d): ", __func__, __FILE__, __LINE__); \
                          fprintf(stderr, __VA_ARGS__);           \
                          fprintf(stderr, "\n");} while(0)
-/*
-#define NODE1_IP "10.10.1.2"
-#define NODE2_IP "10.10.2.2"
-#define NODE3_IP "10.10.3.2"
-*/
 #define INF0 "eth0"
 #define INF1 "eth1"
 #define INF2 "eth2"
@@ -53,59 +47,21 @@ FILE *LOGFILE;
 
 // Hashmap data structure
 typedef struct hashl {
-    // Address of the node in list.
-    uint32_t network;
-    uint32_t next_hop;
-    uint32_t mask;
-    uint32_t metric;
+    uint64_t given_pattern;
+    uint64_t dest_pattern;
     char interface[100];
     UT_hash_handle hh;
 } router_entry;
-
-// Hashmap data structure
-typedef struct arp_hashl {
-    uint32_t ip;
-    struct in_addr *sock_ip;
-    char *mac_addr;
-    UT_hash_handle hh;
-} arp_entry;
 
 struct globals {
     struct config config;
     // Hashmap
     router_entry *rentry;
-    arp_entry *aentry;
     int send_sock_fd;
-    unsigned char eth1_mac[ETH_ALEN];
-    unsigned char eth2_mac[ETH_ALEN];
-    unsigned char eth3_mac[ETH_ALEN];
-    struct in_addr mask_255_255_255_0;
-    struct in_addr mask_255_0_0_0;
-    struct in_addr sock_network_LAN0;
-    struct in_addr sock_network_LAN1;
-    struct in_addr sock_network_rtr1;
-    struct in_addr sock_network_rtr2;
-    uint32_t rtable_keys[10];
+    pthread_t sniff_th;
     int rtable_size;
-    pthread_t sniff_th, ripd_th;
-    int ripd_eth1_fd, ripd_eth2_fd;
-    struct sockaddr_in ripd_eth1_sock, ripd_eth2_sock;
-    uint32_t eth0_ip, eth1_ip, eth2_ip;
-};
+    uint64_t rtable_keys[100];
 
-struct rip {
-	u_int8_t rip_cmd;		/* request/response */
-	u_int8_t rip_vers;		/* protocol version # */
-	u_int8_t unused[2];		/* unused */
-};
-
-struct rip_netinfo {
-	u_int16_t rip_family;
-	u_int16_t rip_tag;
-	u_int32_t rip_dest;
-	u_int32_t rip_dest_mask;
-	u_int32_t rip_router;
-	u_int32_t rip_metric;		/* cost of route */
 };
 
 extern struct globals globals;

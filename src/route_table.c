@@ -1,203 +1,74 @@
 #include "route_table.h"
 #include "cprotocol.h"
 
-#define DEF_MASK_255_255_255_0 "255.255.255.0"
-#define DEF_MASK_255_0_0_0 "255.0.0.0"
-
-uint32_t get_route_entry_print(uint32_t network, char *interface,
-                               uint32_t *mask, uint32_t *metric) {
-
-    router_entry *rentry = (router_entry*)find_entry(network);
+void get_route_entry_print(uint64_t given_pattern, uint64_t *dest_pattern,
+                           char *interface)
+{
+    router_entry *rentry = (router_entry*)find_entry(given_pattern);
     if (rentry == NULL) {
         printf("ROUTER: This should never happen\n");
         exit(1);
     }
 
-    *mask = rentry->mask;
-    *metric = rentry->metric;
+    *dest_pattern = rentry->dest_pattern;
     strcpy(interface, rentry->interface);
-    return rentry->next_hop;
 }
 
-uint32_t get_route_entry_rip(uint32_t network, char *interface,
-                             uint32_t *mask, uint32_t *metric) {
+void get_route_entry(uint64_t given_pattern, uint64_t *dest_pattern,
+                     char *interface) {
 
-    router_entry *rentry = (router_entry*)find_entry(network);
+    router_entry *rentry = (router_entry*)find_entry(given_pattern);
     if (rentry == NULL) {
         printf("ROUTER: This should never happen\n");
         exit(1);
     }
 
-    *mask = rentry->mask;
-    *metric = rentry->metric;
+    *dest_pattern = rentry->dest_pattern;
     strcpy(interface, rentry->interface);
-    return rentry->next_hop;
-}
-
-bool get_route_entry(uint32_t network, uint32_t dest_ip,
-                     char *interface, uint32_t *mask, uint32_t *next_hop,
-                     uint32_t *metric) {
-
-    router_entry *rentry = (router_entry*)find_entry(network);
-    if (rentry == NULL) {
-        printf("ROUTER: This should never happen\n");
-        exit(1);
-    }
-
-    if ( (dest_ip & rentry->mask) != rentry->network ) {
-        return false;
-    }
-
-    /*
-    if (DEBUG) {
-        uint32_t result_and = dest_ip & rentry->mask;
-        printf("\n ANDED = ");
-        print_ip(result_and);
-
-        printf("\n Debug route: Dest ip:  ");
-        print_ip(dest_ip);
-        printf("  Network ip : ");
-        print_ip(network);
-        printf("\n");
-    }
-    */
-
-    *mask = rentry->mask;
-    *next_hop = rentry->next_hop;
-    *metric = rentry->metric;
-    strcpy(interface, rentry->interface);
-
-    return true;
 }
 /**
  * Print the complete routing table
  *
  * ++++++++++++++++++++++++++++++++++++++++++++++
- * | Network  |   Next-hop |  Interface |       |
+ * | Given pattern  | Dest pattern |  Interface |
  * ++++++++++++++++++++++++++++++++++++++++++++++
- * | 10.1.2.0 |      *     |   inf000   | LAN 1 |
- * ++++++++++++++++++++++++++++++++++++++++++++++
- * | 10.10.3.0|      *     |   inf002   | rtr2  |
- * ++++++++++++++++++++++++++++++++++++++++++++++
- * | 10.10.1.0|      *     |   inf001   | rtr1  |
- * ++++++++++++++++++++++++++++++++++++++++++++++
- * | 10.0.0.0 | 10.10.1.1  |   inf001   | LAN 0 |
  * ++++++++++++++++++++++++++++++++++++++++++++++
  */
 void print_route_table() {
-    printf(KGRN "Route table");
-    printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
     char res_interface[100];
-    uint32_t res_mask, metric;
+    uint64_t dest_pattern;
 
     int i;
+    printf(KGRN "Route table");
+    printf("\n++++++++++++++++++++++++++++++++++++++++++++++\n");
     for (i = 0; i < globals.rtable_size; i++) {
         memset(res_interface, 0, 100);
-        uint32_t network_ip = globals.rtable_keys[i];
-        uint32_t next_hop = get_route_entry_print(network_ip,
-                                                  res_interface, &res_mask,
-                                                  &metric);
-        /*
-        print_ip(network_ip);
-        printf("  | %s |", res_interface);
-        print_ip(next_hop);
-        printf(" | ");
-        print_ip(res_mask);
-        printf(" | ");
-        printf( " %d ", metric);
-        */
-        printf("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n" );
+        uint64_t given_pattern = globals.rtable_keys[i];
+        get_route_entry(given_pattern, &dest_pattern, res_interface);
 
+        //printf("| %" PRId64 "  | %" PRId64 " | %s |", given_pattern, dest_pattern, res_interface);
+        printf("| %15ld  | %15ld | %s |", given_pattern, dest_pattern, res_interface);
+        printf("\n++++++++++++++++++++++++++++++++++++++++++++++\n");
     }
     printf(RESET);
 }
 
-void add_entry_char(char *network, char *next_hop,
-                    char *interface, char *mask) {
-    /* Create entry */
-    router_entry *r_node = malloc(sizeof(router_entry));
-    r_node->network = char_to_uint32(network);
-    r_node->next_hop = char_to_uint32(next_hop);
-    r_node->mask = char_to_uint32(mask);
-    strcpy(r_node->interface, interface);
-    /* Add entry */
-    add_entry(r_node);
-}
-
-void add_entry_uint(uint32_t network, char *next_hop,
-                    char *interface, char *mask, uint32_t metric) {
+void add_route_entry(uint64_t given_pattern, uint64_t dest_pattern,
+               char *interface) {
 
     /* Create entry */
     router_entry *r_node = malloc(sizeof(router_entry));
-    r_node->network = network;
-    r_node->next_hop = char_to_uint32(next_hop);
-    r_node->mask = char_to_uint32(mask);
-    r_node->metric = metric;
+    r_node->given_pattern = given_pattern;
+    r_node->dest_pattern = dest_pattern;
     strcpy(r_node->interface, interface);
     /* Add entry */
     add_entry(r_node);
 
-    globals.rtable_keys[globals.rtable_size] = network;
-    globals.rtable_size++;
-
-}
-
-void add_entry_rip(uint32_t network, uint32_t next_hop,
-                    char *interface, uint32_t mask, uint32_t metric) {
-    /*
-    printf("Debug: Adding route: Network:  ");
-    print_ip(network);
-    printf("  ,Mask : ");
-    print_ip(mask);
-    printf("  ,Next hop : ");
-    print_ip(next_hop);
-    printf("  ,Interface : %s, Metric : %d", interface, metric);
-    printf("\n");
-    */
-
-    /* Create entry */
-    router_entry *r_node = malloc(sizeof(router_entry));
-    r_node->network = network;
-    r_node->next_hop = next_hop;
-    r_node->mask = mask;;
-    r_node->metric = metric;
-    strcpy(r_node->interface, interface);
-    /* Add entry */
-    add_entry(r_node);
-
-    globals.rtable_keys[globals.rtable_size] = network;
-    globals.rtable_size++;
+    globals.rtable_keys[globals.rtable_size++] = given_pattern;
 }
 
 /**
- * This will add or update the entry in the routing table
- * as per the RIP entry recieved.
- */
-void update_or_add_entry(uint32_t network, uint32_t source_ip, uint32_t next_hop,
-                         char *interface, uint32_t mask, uint32_t metric) {
-    /** Look for entry in the table
-     *  If the entry is not their, then add
-     *  entry otherwise compare and create
-     */
-    router_entry *rentry = (router_entry*)find_entry(network);
-    if( rentry == NULL ) {
-        printf("RIP: Adding new entry in the routing table\n");
-        add_entry_rip(network,source_ip , interface, mask, metric);
-    } else {
-        uint32_t rmetric = rentry->metric;
-        if ( rmetric > metric ) {
-            add_entry_rip(network,source_ip , interface, mask, metric);
-        }
-
-    }
-}
-
-/**
- * Network | Next Hop | Interface
- *  int         int       string
  */
 void init_build_route_table(){
-    add_entry_uint(char_to_uint32("10.10.1.0"), "0", INF0, DEF_MASK_255_255_255_0, 1);
-    add_entry_uint(char_to_uint32("10.10.2.0"), "0", INF2, DEF_MASK_255_255_255_0, 1);
-    add_entry_uint(char_to_uint32("10.10.3.0"), "0", INF1, DEF_MASK_255_255_255_0, 1);
+    add_route_entry(4295098368, 562954248519680, INF2);
 }

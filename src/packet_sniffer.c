@@ -49,8 +49,8 @@ int set_promisc(char *interface, int sock ) {
         perror("Could not retrive flags for the interface");
         exit(0);
     }
-    printf("DEBUG: The interface is ::: %s\n", interface);
-    perror("DEBUG: Retrieved flags from interface successfully");
+    //printf("DEBUG: The interface is ::: %s\n", interface);
+    //perror("DEBUG: Retrieved flags from interface successfully");
 
     /*now that the flags have been
     * retrieved*/
@@ -60,7 +60,7 @@ int set_promisc(char *interface, int sock ) {
         perror("Could not set the PROMISC flag:");
         exit(0);
     }
-    printf("DEBUG: Setting interface ::: %s ::: to promisc\n", interface);
+    //printf("DEBUG: Setting interface ::: %s ::: to promisc\n", interface);
     return(0);
 }
 

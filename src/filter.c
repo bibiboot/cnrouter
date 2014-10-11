@@ -27,17 +27,3 @@ bool is_allowed(unsigned char *packet)
         return true;
     return false;
 }
-
-/**
- * The source ip is not of his own
- */
-bool is_src_not_own_ip(uint32_t ip)
-{
-    if ( ip != globals.eth0_ip &&
-         ip != globals.eth1_ip &&
-         ip != globals.eth2_ip ) {
-
-        return true;
-    }
-    return false;
-}

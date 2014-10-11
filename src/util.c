@@ -10,7 +10,7 @@ void set_pattern(unsigned char *packet, uint64_t pttn_num)
 uint64_t get_pattern(unsigned char *packet)
 {
     struct pattern *pttn = (struct pattern*)packet;
-    printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
+    //printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
     return be64toh(pttn->value);
 }
 

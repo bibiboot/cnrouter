@@ -156,7 +156,7 @@ void update_icmp_packet_time_exc_reply(unsigned char *packet, int packet_size){
     struct iphdr *iph = (struct iphdr *)(packet  + sizeof(struct ethhdr));
     unsigned short iphdrlen = iph->ihl * 4;
     int header_size = sizeof(struct ethhdr) + iphdrlen + sizeof(struct icmphdr);
-    printf("Header size = %d and ICMPHREAD = %d\n", header_size, sizeof(struct icmphdr));
+    //printf("Header size = %d and ICMPHREAD = %d\n", header_size, sizeof(struct icmphdr));
     struct icmphdr *icmph = (struct icmphdr *)(packet + iphdrlen  + sizeof(struct ethhdr));
 
     int payload_size = packet_size - header_size;
