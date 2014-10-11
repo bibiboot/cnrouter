@@ -1,5 +1,6 @@
 #include "route_table.h"
 #include "cprotocol.h"
+#include "util.h"
 
 void get_route_entry_print(uint64_t given_pattern, uint64_t *dest_pattern,
                            char *interface)
@@ -46,8 +47,32 @@ void print_route_table() {
         uint64_t given_pattern = globals.rtable_keys[i];
         get_route_entry(given_pattern, &dest_pattern, res_interface);
 
-        //printf("| %" PRId64 "  | %" PRId64 " | %s |", given_pattern, dest_pattern, res_interface);
+        //printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
         printf("| %15ld  | %15ld | %s |", given_pattern, dest_pattern, res_interface);
+        printf("\n++++++++++++++++++++++++++++++++++++++++++++++\n");
+    }
+    printf(RESET);
+}
+
+void print_route_table_human() {
+    char res_interface[100];
+    uint64_t dest_pattern;
+    uint16_t dest_mac, src_ip, dest_ip, port;
+
+    int i;
+    printf(KGRN "Human Route table");
+    printf("\n++++++++++++++++++++++++++++++++++++++++++++++\n");
+    for (i = 0; i < globals.rtable_size; i++) {
+        memset(res_interface, 0, 100);
+        uint64_t given_pattern = globals.rtable_keys[i];
+        get_route_entry(given_pattern, &dest_pattern, res_interface);
+        pattern_to_human(given_pattern, &dest_mac, &src_ip, &dest_ip, &port);
+        printf("| %d  | %d | %d | %d |||", dest_mac, src_ip, dest_ip, port);
+        pattern_to_human(dest_pattern, &dest_mac, &src_ip, &dest_ip, &port);
+        printf("| %d  | %d | %d | %d | %s", dest_mac, src_ip, dest_ip, port, res_interface);
+
+        //printf("| %" PRId64 "  | %" PRId64 " | %s |", given_pattern, dest_pattern, res_interface);
+        //printf("| %15ld  | %15ld | %s |", given_pattern, dest_pattern, res_interface);
         printf("\n++++++++++++++++++++++++++++++++++++++++++++++\n");
     }
     printf(RESET);
@@ -70,5 +95,5 @@ void add_route_entry(uint64_t given_pattern, uint64_t dest_pattern,
 /**
  */
 void init_build_route_table(){
-    add_route_entry(4295098368, 562954248519680, INF2);
+    add_route_entry(htobe64(4295098368), htobe64(562954248519680), INF2);
 }

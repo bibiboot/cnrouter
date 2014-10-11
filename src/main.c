@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
     init_build_route_table();
 
     print_route_table();
+    print_route_table_human();
 
     start();
 
