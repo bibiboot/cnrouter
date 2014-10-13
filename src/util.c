@@ -1,6 +1,20 @@
 #include "util.h"
 #include "print_packet.h"
 
+int get_interface_index(char *result_if_name)
+{
+    int src_index = 0;
+    if (strcmp(result_if_name, "eth0") == 0) {
+        src_index = 2;
+    } else if (strcmp(result_if_name, "eth2") == 0) {
+        src_index = 4;
+    } else {
+        printf("Index: This should never happen\n");
+        exit(1);
+    }
+    return src_index;
+}
+
 void pattern_to_human(uint64_t pattern, uint16_t *dest_mac,
                       uint16_t *src_ip, uint16_t *dest_ip,
                       uint16_t *port)

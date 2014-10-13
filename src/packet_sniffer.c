@@ -1,7 +1,18 @@
 #include "packet_sniffer.h"
+//#include <linux/if_arp.h>
 #include <net/if.h>
 
 #define PACKET_LEN 65536
+
+struct sockaddr_ll {
+             unsigned short sll_family;   /* Always AF_PACKET */
+                     unsigned short sll_protocol; /* Physical layer protocol */
+                             int        sll_ifindex;  /* Interface number */
+                                     unsigned short sll_hatype;   /* Header type */
+                                             unsigned char  sll_pkttype;  /* Packet type */
+                                                     unsigned char  sll_halen;    /* Length of address */
+                                                             unsigned char  sll_addr[8];  /* Physical layer address */
+                                                                 };
 
 void print_human_read_payload(unsigned char *packet, int packet_size)
 {
@@ -81,6 +92,15 @@ void* sniff(void *val)
         return;
     }
 
+    /*
+    struct sockaddr_ll socket_address;
+    memset (&socket_address, 0, sizeof (struct sockaddr_ll));
+    socket_address.sll_family   = AF_PACKET;
+    socket_address.sll_protocol = htons(ETH_P_ALL);
+    socket_address.sll_ifindex = 2;
+    */
+
+    //bind(sock_raw, (struct sockaddr *)&socket_address, sizeof(socket_address));
     /**
      * Set it on promiscous mode,
      * Otherwise it won't sniff packet
@@ -94,6 +114,7 @@ void* sniff(void *val)
         saddr_size = sizeof saddr;
         // Receive a packet
         data_size = recvfrom(sock_raw , buffer , PACKET_LEN , 0 , &saddr , (socklen_t*)&saddr_size);
+        //data_size = recvfrom(sock_raw , buffer , PACKET_LEN , 0 , (struct sockaddr*)&socket_address , (socklen_t*)&saddr_size);
         if(data_size <0 )
         {
             printf("Error: Recvfrom error , failed to get packets\n");
@@ -105,14 +126,16 @@ void* sniff(void *val)
         }
 
         /* Track count of the packet type */
-        process_custom_packet(buffer , data_size);
+        //process_custom_packet(buffer , data_size);
 
+        globals.total_packet_sniff++;
         incoming_packet_handler(buffer, data_size);
+        printf("Total packet sniffed = %d\r", globals.total_packet_sniff);
 
-        memset(buffer, '\0', PACKET_LEN);
+        //memset(buffer, '\0', PACKET_LEN);
 
-        fflush(LOGFILE);
-        fflush(stdout);
+        //fflush(LOGFILE);
+        //fflush(stdout);
     }
 
     close(sock_raw);

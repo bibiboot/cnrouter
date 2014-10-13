@@ -10,3 +10,6 @@ void create_log_file();
 void pattern_to_human(uint64_t pattern, uint16_t *dest_mac,
                       uint16_t *src_ip, uint16_t *dest_ip,
                       uint16_t *port);
+
+int get_interface_index(char *interface);
+

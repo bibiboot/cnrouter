@@ -61,7 +61,7 @@ struct globals {
     pthread_t sniff_th;
     int rtable_size;
     uint64_t rtable_keys[100];
-
+    int total_packet_sniff;
 };
 
 extern struct globals globals;

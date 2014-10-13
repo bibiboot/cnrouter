@@ -96,4 +96,5 @@ void add_route_entry(uint64_t given_pattern, uint64_t dest_pattern,
  */
 void init_build_route_table(){
     add_route_entry(htobe64(4295098368), htobe64(562954248519680), INF2);
+    add_route_entry(htobe64(8590000128), htobe64(281483566710784), INF0);
 }
