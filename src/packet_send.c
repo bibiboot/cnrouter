@@ -40,6 +40,11 @@ void send_packet_on_line_fast(int index, void *packet, int data_size){
                              data_size , 0, (struct sockaddr*)&socket_address_eth2,
                              sizeof(socket_address_eth2));
     }
+    else if ( index == 3 ) {
+        send_result = sendto(globals.send_sock_fd, packet,
+                             data_size , 0, (struct sockaddr*)&socket_address_eth1,
+                             sizeof(socket_address_eth1));
+    }
     /*send the packet*/
     if (send_result < 0){
 	printf("ERROR: sendto\n");

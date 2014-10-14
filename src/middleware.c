@@ -3,30 +3,31 @@
 #include "print_packet.h"
 #include "route_table.h"
 #include "util.h"
+#include "socket_util.h"
 
-void update_ethernet_packet(unsigned char *packet, unsigned char *src_mac,
-                            unsigned char *dest_mac)
+void get_route_entry_deprecated(unsigned char *packet, char *result_if_name)
 {
-    /*pointer to ethenet header*/
-    unsigned char* etherhead = packet;
-
-    unsigned char* data = packet + ETH_HLEN;
-    struct ethhdr *eh = (struct ethhdr *)etherhead;
-    memcpy((void*)packet, (void*)dest_mac, ETH_ALEN);
-    memcpy((void*)(packet+ETH_ALEN),(void*)src_mac, ETH_ALEN);
+    struct custom_ethernet *ether_header = (struct custom_ethernet*)packet;
+    struct custom_ip *ip_header = (struct custom_ip*)(packet + C_ETHLEN);
+    switch(ntohs(ip_header->dest_ip)) {
+        case 1:
+            ether_header->dest_mac = htons(1);
+            strcpy(result_if_name, INF0);
+            break;
+        case 2:
+            ether_header->dest_mac = htons(2);
+            strcpy(result_if_name, INF2);
+            break;
+        case 3:
+            ether_header->dest_mac = htons(3);
+            strcpy(result_if_name, INF1);
+            break;
+        default:
+            printf("Route: This should never happen\n");
+            exit(1);
+    }
 }
 
-void incoming_osi_frame_packet_handler(unsigned char *packet, int packet_size)
-{
-    //Node2 00:04:23:c7:a4:b4
-    //Router 00:04:23:c7:a6:46
-    char result_if_name[IFNAMSIZ] = "eth2";
-    unsigned char dest_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xa4, 0xb4};
-    unsigned char src_mac[6] = {0x00, 0x04, 0x23, 0xc7, 0xa6, 0x46};
-    update_ethernet_packet(packet, src_mac, dest_mac);
-    int src_index = get_interface_index(result_if_name);
-    send_packet_on_line_fast(src_index, packet, packet_size);
-}
 
 /**
  * Handle the incoming packet.
@@ -36,7 +37,7 @@ void incoming_osi_frame_packet_handler(unsigned char *packet, int packet_size)
 void incoming_packet_handler(unsigned char *packet, int packet_size)
 {
     char result_if_name[IFNAMSIZ];
-    uint64_t dest_pattern;
+    //uint64_t dest_pattern;
 
     /**
      * Get pattern and interface from table
@@ -44,15 +45,16 @@ void incoming_packet_handler(unsigned char *packet, int packet_size)
      * dest_pattern_num = ?
      */
 
-    uint64_t given_pattern = get_pattern(packet);
+    //uint64_t given_pattern = get_pattern(packet);
 
     //struct custom_ethernet *ether_head = (struct custom_ethernet*)packet;
-    //ether_head->dest_mac = htons(1);
+    //ether_head->dest_mac = htons(2);
     //given_pattern = get_pattern(packet);
 
-    get_route_entry(given_pattern, &dest_pattern, result_if_name);
+    get_route_entry_deprecated(packet, result_if_name);
+    //get_route_entry(given_pattern, &dest_pattern, result_if_name);
 
-    set_pattern(packet, dest_pattern);
+    //set_pattern(packet, dest_pattern);
 
     int src_index = get_interface_index(result_if_name);
 

@@ -92,15 +92,6 @@ void* sniff(void *val)
         return;
     }
 
-    /*
-    struct sockaddr_ll socket_address;
-    memset (&socket_address, 0, sizeof (struct sockaddr_ll));
-    socket_address.sll_family   = AF_PACKET;
-    socket_address.sll_protocol = htons(ETH_P_ALL);
-    socket_address.sll_ifindex = 2;
-    */
-
-    //bind(sock_raw, (struct sockaddr *)&socket_address, sizeof(socket_address));
     /**
      * Set it on promiscous mode,
      * Otherwise it won't sniff packet
@@ -114,7 +105,6 @@ void* sniff(void *val)
         saddr_size = sizeof saddr;
         // Receive a packet
         data_size = recvfrom(sock_raw , buffer , PACKET_LEN , 0 , &saddr , (socklen_t*)&saddr_size);
-        //data_size = recvfrom(sock_raw , buffer , PACKET_LEN , 0 , (struct sockaddr*)&socket_address , (socklen_t*)&saddr_size);
         if(data_size <0 )
         {
             printf("Error: Recvfrom error , failed to get packets\n");
@@ -135,7 +125,7 @@ void* sniff(void *val)
         //memset(buffer, '\0', PACKET_LEN);
 
         //fflush(LOGFILE);
-        //fflush(stdout);
+        fflush(stdout);
     }
 
     close(sock_raw);

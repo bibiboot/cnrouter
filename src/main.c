@@ -24,6 +24,8 @@ int main(int argc, char *argv[]){
                                  2, dest_mac);
     create_custom_socket_address(&socket_address_eth2,
                                  4, dest_mac);
+    create_custom_socket_address(&socket_address_eth1,
+                                 3, dest_mac);
 
     /* Building initial routing table */
     init_build_route_table();

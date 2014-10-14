@@ -8,11 +8,27 @@ int get_interface_index(char *result_if_name)
         src_index = 2;
     } else if (strcmp(result_if_name, "eth2") == 0) {
         src_index = 4;
+    } else if (strcmp(result_if_name, "eth1") == 0) {
+        src_index = 3;
     } else {
         printf("Index: This should never happen\n");
         exit(1);
     }
     return src_index;
+}
+
+void pattern_to_human2(uint64_t pattern, uint16_t *dest_mac,
+                      uint16_t *src_ip, uint16_t *dest_ip,
+                      uint16_t *port)
+{
+    unsigned char *packet = (unsigned char*)&pattern;
+    struct custom_ethernet *ether_header = (struct custom_ethernet*)packet;
+    struct custom_ip *ip_header = (struct custom_ip*)(packet + C_ETHLEN);
+    struct custom_udp *udp_header = (struct custom_udp*)(packet + C_ETHLEN + C_IPLEN);
+    *dest_mac = ether_header->dest_mac;
+    *src_ip = ip_header->src_ip;
+    *dest_ip = ip_header->dest_ip;
+    *port = udp_header->port;
 }
 
 void pattern_to_human(uint64_t pattern, uint16_t *dest_mac,
@@ -38,7 +54,7 @@ void set_pattern(unsigned char *packet, uint64_t pttn_num)
 uint64_t get_pattern(unsigned char *packet)
 {
     struct pattern *pttn = (struct pattern*)packet;
-    //printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
+    printf("Pattern = %" PRId64 "\n", be64toh(pttn->value));
     //return be64toh(pttn->value);
     return pttn->value;
 }
