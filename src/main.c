@@ -14,7 +14,7 @@ void start(){
 int main(int argc, char *argv[]){
 
     /* Create file descriptor to write the packet */
-    create_log_file();
+    //create_log_file();
 
     /* Descriptor used for sending packets */
     globals.send_sock_fd = get_socket();
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
                                  3, dest_mac);
 
     /* Building initial routing table */
-    init_build_route_table();
+    //init_build_route_table();
 
     print_route_table();
     print_route_table_human();

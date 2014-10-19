@@ -1,18 +1,5 @@
 #include "packet_sniffer.h"
-//#include <linux/if_arp.h>
 #include <net/if.h>
-
-#define PACKET_LEN 65536
-
-struct sockaddr_ll {
-             unsigned short sll_family;   /* Always AF_PACKET */
-                     unsigned short sll_protocol; /* Physical layer protocol */
-                             int        sll_ifindex;  /* Interface number */
-                                     unsigned short sll_hatype;   /* Header type */
-                                             unsigned char  sll_pkttype;  /* Packet type */
-                                                     unsigned char  sll_halen;    /* Length of address */
-                                                             unsigned char  sll_addr[8];  /* Physical layer address */
-                                                                 };
 
 void print_human_read_payload(unsigned char *packet, int packet_size)
 {
@@ -83,7 +70,7 @@ void* sniff(void *val)
     unsigned char *buffer = (unsigned char *) malloc(PACKET_LEN);
     memset(buffer, '\0', PACKET_LEN);
 
-    printf("Starting...\n");
+    printf(KMAG "............\n" RESET);
 
     int sock_raw = socket( AF_PACKET , SOCK_RAW , htons(ETH_P_ALL)) ;
 
@@ -120,12 +107,11 @@ void* sniff(void *val)
 
         globals.total_packet_sniff++;
         incoming_packet_handler(buffer, data_size);
-        printf("Total packet sniffed = %d\r", globals.total_packet_sniff);
+
+        printf(KMAG "Packets routed : %d\r" RESET, globals.total_packet_sniff);
 
         //memset(buffer, '\0', PACKET_LEN);
-
-        //fflush(LOGFILE);
-        fflush(stdout);
+        //fflush(stdout);
     }
 
     close(sock_raw);

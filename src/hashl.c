@@ -13,8 +13,9 @@ void add_entry(router_entry *r){
  * @brief Find a structure based on the key
  *        which is a sequence number
  */
+//router_entry *find_entry(uint64_t given_pattern){
 router_entry *find_entry(uint64_t given_pattern){
     router_entry *r;
-    HASH_FIND_INT( globals.rentry, &given_pattern, r);
+    HASH_FIND_INT(globals.rentry, &given_pattern, r);
     return r;
 }
